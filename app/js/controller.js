@@ -6,7 +6,7 @@ const KEY_STORAGE_AUTH_KEY = "authKey";
 class Controller {
     static login() {
         const username = $('#input-username').val();
-        let passHash = CryptoJS.SHA256($('#input-password').val()).toString();
+        const passHash = CryptoJS.SHA256($('#input-password').val()).toString();
 
         return Requester.postJSON("http://teamyowie-api.azurewebsites.net/api/auth", {
                 username,
