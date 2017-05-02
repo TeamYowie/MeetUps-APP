@@ -1,4 +1,4 @@
-import { Controller } from "./controller.js";
+import { Controller } from "controler";
 
 let router = new Navigo(null, true);
 

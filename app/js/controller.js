@@ -1,9 +1,9 @@
-import { Requester } from "./requester.js";
+import { Requester } from "requester";
 
 const KEY_STORAGE_USERNAME = "username";
 const KEY_STORAGE_AUTH_KEY = "authKey";
 
-class Controller {
+export class Controller {
     static login() {
         const username = $('#input-username').val();
         const passHash = CryptoJS.SHA256($('#input-password').val()).toString();
@@ -20,5 +20,3 @@ class Controller {
         });
   }
 }
-
-export { Controller };

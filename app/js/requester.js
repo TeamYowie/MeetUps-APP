@@ -1,4 +1,4 @@
-class Requester {
+export class Requester {
   static get(url) {
     return $.ajax({
       url,
@@ -36,5 +36,3 @@ class Requester {
     });
   }
 }
-
-export { Requester };
