@@ -5,7 +5,7 @@ export class Requester {
       method: "GET"
     });
   }
-
+  
   static getJSON(url) {
     return $.ajax({
       url,
