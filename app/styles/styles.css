@@ -1,6 +1,6 @@
 #login-error {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 120%;
+    right: 20%;
     z-index: 5000;
 }
