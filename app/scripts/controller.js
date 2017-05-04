@@ -15,7 +15,7 @@ export class Controller {
   static login() {
     const username = $("#input-username").val();
     const passHash = CryptoJS.SHA256($("#input-password").val()).toString();
-    $("#login-error").css("display", "none");
+
     if (!username || !passHash || !Controller.isLoggedIn()) {
       return this;
     }
@@ -28,21 +28,18 @@ export class Controller {
         localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
         localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
 
-        Templates
-          .get("navigation")
-          .then(template => {
-            $("#top").html(template);
-            $("#logout-button").on("click", Controller.logout);
-        });
+        Controller.loadNav();
       })
       .catch(authError => {
         if (authError.status === 422) {
-          $("#login-error").text(`${authError.responseText}`);
-          $("#login-error").addClass("alert alert-danger");
-          $("#login-error").css("display", "inline-block");
+          $("#login-error").show();
+          setTimeout(() => {
+            $("#login-error").hide();
+          }, 3000);
         }
       });
   }
+
   static logout() {
     if (!Controller.isLoggedIn()) {
       return this;
@@ -51,11 +48,26 @@ export class Controller {
     localStorage.removeItem(STORAGE_USERNAME_KEY);
     localStorage.removeItem(STORAGE_AUTH_KEY);
 
+    Controller.loadLogin();
+  }
+  
+  static loadLogin() {
     Templates
       .get("login")
       .then(template => {
-        $("#top").html(template);
+        $("#main-nav").html(template);
+        $("#login-error").hide();
         $("#login-button").on("click", Controller.login);
+    });
+  }
+  
+  static loadNav() {
+    Templates
+      .get("navigation")
+      .then(template => {
+        $("#main-nav").html(template);
+        $("#logout-button").on("click", Controller.logout);
+        $('.dropdown-toggle').dropdown()
     });
   }
 }
