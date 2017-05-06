@@ -19,15 +19,16 @@ export class Controller {
 
   static login() {
     const username = $("#input-username").val();
-    const passHash = CryptoJS.SHA256($("#input-password").val()).toString();
+    const password = $("#input-password").val();
 
-    if (username && $("#input-password").val()) {
+    if (username && password) {
       Controller.isLoggedIn()
         .then(isLoggedIn => {
           if (isLoggedIn) {
             return this;
           }
           else {
+            const passHash = CryptoJS.SHA256(password).toString();
             let body = {
               username,
               passHash
@@ -41,12 +42,9 @@ export class Controller {
                 window.location = "#/";
               })
               .catch(authError => {
-                let errorPopup = $("#login-error");
+                let errorElement = $("#login-error");
                 if (authError.status === 422) {
-                  errorPopup.toggleClass("hidden");
-                  setTimeout(() => {
-                    errorPopup.toggleClass("hidden");
-                  }, 3000);
+                  errorPopup(errorElement);
                 }
               });
           }
@@ -56,15 +54,16 @@ export class Controller {
 
   static signup() {
     const username = $("#signup-username").val();
-    const passHash = CryptoJS.SHA256($("#signup-password").val()).toString();
+    const password = $("#signup-password").val();
     
-    if (username && $("#signup-password").val()) {
+    if (username && password) {
       Controller.isLoggedIn()
         .then(isLoggedIn => {
           if (isLoggedIn) {
             return this;
           }
           else {
+            const passHash = CryptoJS.SHA256(password).toString();
             return Requester.postJSON("/api/users", {
               username,
               passHash
@@ -73,12 +72,13 @@ export class Controller {
                 window.location = "#/";
               })
               .catch(signUpError => {
-                let errorPopup = $("#signup-error");
-                if (signUpError.status === 400 || signUpError.status === 409) {
-                  errorPopup.toggleClass("hidden");
-                  setTimeout(() => {
-                    errorPopup.toggleClass("hidden");
-                  }, 3000);
+                if (signUpError.status === 400) {
+                  let errorElement = $("#signup-error");
+                  errorPopup(errorElement);
+                }
+                else if (signUpError.status === 409) {
+                  let errorElement = $("#signup-error-exists");
+                  errorPopup(errorElement);
                 }
               });
           }
@@ -88,7 +88,7 @@ export class Controller {
 
   static logout() {
     let body = {
-       username: localStorage.getItem(STORAGE_USERNAME_KEY)
+      username: localStorage.getItem(STORAGE_USERNAME_KEY)
     };
     let options = {
       headers: {
@@ -105,12 +105,9 @@ export class Controller {
         window.location = "#/";
       })
       .catch(logoutError => {
-        let errorPopup = $("#logout-error");
+        let errorElement = $("#logout-error");
         if (logoutError.status === 422) {
-          errorPopup.toggleClass("hidden");
-          setTimeout(() => {
-            errorPopup.toggleClass("hidden");
-          }, 3000);
+          errorPopup(errorElement);
         }
       });
   }
@@ -144,6 +141,7 @@ export class Controller {
       .then(template => {
         $("#content").html(template);
         $("#signup-error").toggleClass("hidden");
+        $("#signup-error-exists").toggleClass("hidden");
         $("#signup-submit").on("click", Controller.signup);
       });
   }
@@ -155,4 +153,14 @@ export class Controller {
         $("#content").html(template);
       });
   }
+}
+
+function errorPopup(errorElement) {
+  if (!errorElement.hasClass("hidden")) {
+    return;
+  }
+  errorElement.toggleClass("hidden");
+  setTimeout(() => {
+    errorElement.toggleClass("hidden");
+  }, 3000);
 }
