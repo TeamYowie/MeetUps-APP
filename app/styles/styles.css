@@ -4,3 +4,6 @@
     right: 20%;
     z-index: 5000;
 }
+.hidden {
+    display: none;
+}
