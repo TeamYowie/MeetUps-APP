@@ -55,7 +55,7 @@ export class Controller {
   static signup() {
     const username = $("#signup-username").val();
     const password = $("#signup-password").val();
-    
+
     if (username && password) {
       Controller.isLoggedIn()
         .then(isLoggedIn => {
@@ -159,6 +159,7 @@ function errorPopup(errorElement) {
   if (!errorElement.hasClass("hidden")) {
     return;
   }
+  $(".form-control").val("");
   errorElement.toggleClass("hidden");
   setTimeout(() => {
     errorElement.toggleClass("hidden");
