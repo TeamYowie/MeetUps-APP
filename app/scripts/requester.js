@@ -1,3 +1,5 @@
+const API_URL = "http://teamyowie-api.azurewebsites.net";
+
 export class Requester {
   static get(url) {
     return $.ajax({
@@ -6,18 +8,18 @@ export class Requester {
     });
   }
   
-  static getJSON(url) {
+  static getJSON(endpoint) {
     return $.ajax({
-      url,
+      url: API_URL + endpoint,
       method: "GET",
       contentType: "application/json"
     });
   }
 
-  static putJSON(url, body, options = {}) {
+  static putJSON(endpoint, body, options = {}) {
     let headers = options.headers || {};
     return $.ajax({
-      url,
+      url: API_URL + endpoint,
       headers,
       method: "PUT",
       contentType: "application/json",
@@ -25,10 +27,10 @@ export class Requester {
     });
   }
 
-  static postJSON(url, body, options = {}) {
+  static postJSON(endpoint, body, options = {}) {
     let headers = options.headers || {};
     return $.ajax({
-      url,
+      url: API_URL + endpoint,
       headers,
       method: "POST",
       contentType: "application/json",

@@ -2,33 +2,28 @@ import { Requester } from "requester";
 import { Templates } from "templates";
 const STORAGE_USERNAME_KEY = "username";
 const STORAGE_AUTH_KEY = "auth-key";
+const HTTP_HEADER_KEY = "x-auth-key";
 
 export class Controller {
   static isLoggedIn() {
     return Promise
       .resolve()
       .then(() => {
-        return !!localStorage.getItem(STORAGE_USERNAME_KEY);
+        return !!localStorage.getItem(STORAGE_USERNAME_KEY) && !!localStorage.getItem(STORAGE_AUTH_KEY);
       });
   }
+
   static home() {
     Controller.loadHome();
   }
+
   static login() {
     const username = $("#input-username").val();
     const passHash = CryptoJS.SHA256($("#input-password").val()).toString();
 
-    if (!username || !passHash || !Controller.isLoggedIn()) {
-      return this;
-    }
-    //Changed from post to put request
-    return Requester.putJSON("http://teamyowie-api.azurewebsites.net/api/auth", {
-      username,
-      passHash
-    })
-      .then(authResponse => {
-        localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
-        localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
+    if (username && $("#input-password").val()) {
+      Controller.isLoggedIn()
+        .then(isLoggedIn => {
 
         Controller.loadNav();
         document.location = "#/home";
@@ -42,53 +37,80 @@ export class Controller {
           }, 3000);
         }
       });
+              })
+              .catch(authError => {
+                let errorPopup = $("#login-error");
+                if (authError.status === 422) {
+                  errorPopup.toggleClass("hidden");
+                  setTimeout(() => {
+                    errorPopup.toggleClass("hidden");
+                  }, 3000);
+                }
+              });
+          }
+        });
+    }
   }
 
   static signup() {
     const username = $("#signup-username").val();
     const passHash = CryptoJS.SHA256($("#signup-password").val()).toString();
-
-    if (!username || !passHash || Controller.isLoggedIn()) {
-      return this;
+    
+    if (username && $("#signup-password").val()) {
+      Controller.isLoggedIn()
+        .then(isLoggedIn => {
+          if (isLoggedIn) {
+            return this;
+          }
+          else {
+            return Requester.postJSON("/api/users", {
+              username,
+              passHash
+            })
+              .then(signUpResponse => {
+                window.location = "#/";
+              })
+              .catch(signUpError => {
+                let errorPopup = $("#signup-error");
+                if (signUpError.status === 400 || signUpError.status === 409) {
+                  errorPopup.toggleClass("hidden");
+                  setTimeout(() => {
+                    errorPopup.toggleClass("hidden");
+                  }, 3000);
+                }
+              });
+          }
+        });
     }
+  }
 
-    return Requester.postJSON("http://teamyowie-api.azurewebsites.net/api/users", {
-      username,
-      passHash
-    })
-      .then(authResponse => {
-        // this if is stupid idea maybe -> if Remember me checkbox is not checked
-        // it doesn't set the items in the local storage and does not load nav
-        if ($("#remember-me")[0].checked) {
-          localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
-          localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
-          Controller.loadNav();
-        }
+  static logout() {
+    let body = {
+       username: localStorage.getItem(STORAGE_USERNAME_KEY)
+    };
+    let options = {
+      headers: {
+        [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+      }
+    };
 
-        document.location = "#/home";
+    return Requester.postJSON("/api/logout", body, options)
+      .then(logoutResponse => {
+        localStorage.removeItem(STORAGE_USERNAME_KEY);
+        localStorage.removeItem(STORAGE_AUTH_KEY);
+
+        Controller.loadLogin();
+        window.location = "#/";
       })
-      .catch(authError => {
-        console.log(JSON.stringify(authError));
-        let errorPopup = $("#signup-error");
-        if (authError.status === 400 || authError.status === 409) {
+      .catch(logoutError => {
+        let errorPopup = $("#logout-error");
+        if (logoutError.status === 422) {
           errorPopup.toggleClass("hidden");
           setTimeout(() => {
             errorPopup.toggleClass("hidden");
           }, 3000);
         }
       });
-  }
-
-  static logout() {
-    if (!Controller.isLoggedIn()) {
-      return this;
-    }
-
-    localStorage.removeItem(STORAGE_USERNAME_KEY);
-    localStorage.removeItem(STORAGE_AUTH_KEY);
-
-    Controller.loadLogin();
-    document.location = "#/home";
   }
 
   static loadLogin() {
@@ -98,8 +120,9 @@ export class Controller {
         $("#main-nav").html(template);
         $("#login-error").toggleClass("hidden");
         $("#login-button").on("click", Controller.login);
-        $("#signup-button").on("click", Controller.loadSignup);
-        document.location = "#/home";
+        $("#signup-button").on("click", () => {
+          window.location = "#/signup";
+        });
       });
   }
 
@@ -108,9 +131,8 @@ export class Controller {
       .get("navigation")
       .then(template => {
         $("#main-nav").html(template);
+        $("#logout-error").toggleClass("hidden");
         $("#logout-button").on("click", Controller.logout);
-        $('.dropdown-toggle').dropdown();
-        document.location = "#/home";
       });
   }
 
@@ -121,7 +143,6 @@ export class Controller {
         $("#content").html(template);
         $("#signup-error").toggleClass("hidden");
         $("#signup-submit").on("click", Controller.signup);
-        document.location = "#/signup";
       });
   }
 
