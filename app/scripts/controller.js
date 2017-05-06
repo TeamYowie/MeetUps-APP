@@ -24,19 +24,21 @@ export class Controller {
     if (username && $("#input-password").val()) {
       Controller.isLoggedIn()
         .then(isLoggedIn => {
+          if (isLoggedIn) {
+            return this;
+          }
+          else {
+            let body = {
+              username,
+              passHash
+            };
+            return Requester.postJSON("/api/auth", body)
+              .then(authResponse => {
+                localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
+                localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
 
-        Controller.loadNav();
-        document.location = "#/home";
-      })
-      .catch(authError => {
-        let errorPopup = $("#login-error");
-        if (authError.status === 422 || authError.status === 404) {
-          errorPopup.toggleClass("hidden");
-          setTimeout(() => {
-            errorPopup.toggleClass("hidden");
-          }, 3000);
-        }
-      });
+                Controller.loadNav();
+                window.location = "#/";
               })
               .catch(authError => {
                 let errorPopup = $("#login-error");
