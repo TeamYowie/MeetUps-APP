@@ -10,3 +10,7 @@ router
 $(document).ready(() => {
   Controller.loadLogin();
 });
+
+$.cloudinary.config({
+  cloud_name: 'teamyowie'
+});
