@@ -17,3 +17,11 @@
     float: none;
     margin: 0 auto;
 }
+
+.navbar-default {
+    margin: 0;
+}
+
+.carousel-inner {
+    width: 100%;
+}
