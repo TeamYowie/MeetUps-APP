@@ -100,13 +100,10 @@ export class Controller {
             Controller.postSignup();
           })
           .catch(signUpError => {
-            let errorPopup = $("#signup-error");
+            let errorElement = $("#signup-error");
             if (signUpError.status === 422 || signUpError.status === 409) {
-              errorPopup.text(signUpError.responseText);
-              errorPopup.toggleClass("hidden");
-              setTimeout(() => {
-                errorPopup.toggleClass("hidden");
-              }, 3000);
+              errorElement.text(signUpError.responseText);
+              Controller.errorPopup(errorElement);
             }
           });
       });
@@ -182,7 +179,7 @@ export class Controller {
               gravity: "face",
               effect: "saturation:50",
               radius: 20
-            }))
+            }));
           })
           .bind("cloudinaryprogress", function (e, data) {
             let currentPercentage = Math.round((data.loaded * 100.0) / data.total) + "%";
