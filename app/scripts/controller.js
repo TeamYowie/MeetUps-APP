@@ -154,12 +154,11 @@ export class Controller {
   static loadNav() {
     Templates
       .get("navigation")
-      .then(templateScript => {
+      .then(template => {
         let content = {
           username: localStorage.getItem(STORAGE_USERNAME_KEY),
           profileImage: localStorage.getItem(STORAGE_PHOTO_KEY)
         };
-        let template = Handlebars.compile(templateScript);
         let compiledHtml = template(content);
         $("#main-nav").html(compiledHtml);
         $("#logout-error").toggleClass("hidden");
