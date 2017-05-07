@@ -3,6 +3,7 @@ import { Templates } from "templates";
 const MIN_PASSWORD_LENGTH = 6;
 const STORAGE_USERNAME_KEY = "username";
 const STORAGE_AUTH_KEY = "auth-key";
+const STORAGE_PHOTO_KEY = "profile-image";
 const HTTP_HEADER_KEY = "x-auth-key";
 
 export class Controller {
@@ -42,6 +43,7 @@ export class Controller {
           .then(authResponse => {
             localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
             localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
+            localStorage.setItem(STORAGE_PHOTO_KEY, authResponse.result.profileImage);
             Controller.loadNav();
             window.location = "#/";
           })
@@ -121,8 +123,6 @@ export class Controller {
 
     return Requester.postJSON("/api/logout", body, options)
       .then(logoutResponse => {
-        localStorage.removeItem(STORAGE_USERNAME_KEY);
-        localStorage.removeItem(STORAGE_AUTH_KEY);
         Controller.loadLogin();
         window.location = "#/";
       })
@@ -144,6 +144,7 @@ export class Controller {
         $("#signup-button").on("click", () => {
           window.location = "#/signup";
         });
+        localStorage.clear();
       });
   }
 
@@ -151,8 +152,18 @@ export class Controller {
     Templates
       .get("navigation")
       .then(template => {
-        $("#main-nav").html(template);
+        let content = {
+          username: localStorage.getItem(STORAGE_USERNAME_KEY),
+          profileImage: localStorage.getItem(STORAGE_PHOTO_KEY)
+        };
+        let compiledHtml = template(content);
+        $("#main-nav").html(compiledHtml);
         $("#logout-error").toggleClass("hidden");
+        $("#profile-signout").prepend($.cloudinary.image(content.profileImage, {
+          radius: 4,
+          width: 38,
+          crop: "scale"
+        }));
         $("#logout-button").on("click", Controller.logout);
       });
   }
@@ -208,6 +219,12 @@ export class Controller {
       .get("home")
       .then(template => {
         $("#content").html(template);
+        $(".item").eq(0).append($.cloudinary.image("fill1.png", {height: 1080, width: 1900, crop: "scale"}));
+        $(".item").eq(1).append($.cloudinary.image("fill2.jpg", {height: 1080, width: 1900, crop: "scale"}));
+        $(".item").eq(2).append($.cloudinary.image("fill3.jpg", {height: 1080, width: 1900, crop: "scale"}));
+        $('.carousel').carousel({
+            interval: 5000
+        });
       });
   }
 
