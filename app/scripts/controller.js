@@ -160,6 +160,14 @@ export class Controller {
         $("#content").html(template);
       });
   }
+
+  static loadFeedback() {
+    Templates
+      .get("feedback")
+      .then(template => {
+        $("#content").html(template);
+      });
+  }
 }
 
 function errorPopup(errorElement) {
