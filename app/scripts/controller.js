@@ -22,34 +22,36 @@ export class Controller {
     const username = $("#input-username").val();
     const password = $("#input-password").val();
 
-    if (username && password) {
-      Controller.isLoggedIn()
-        .then(isLoggedIn => {
-          if (isLoggedIn) {
-            return this;
-          }
-          
-          const passHash = CryptoJS.SHA256(password).toString();
-          let body = {
-            username,
-            passHash
-          };
-
-          return Requester.postJSON("/api/auth", body)
-            .then(authResponse => {
-              localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
-              localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
-              Controller.loadNav();
-              window.location = "#/";
-            })
-            .catch(authError => {
-              let errorElement = $("#login-error");
-              if (authError.status === 422) {
-                Controller.errorPopup(errorElement);
-              }
-            });
-        });
+    if (!username || !password) {
+      return this;
     }
+
+    Controller.isLoggedIn()
+      .then(isLoggedIn => {
+        if (isLoggedIn) {
+          return this;
+        }
+        
+        const passHash = CryptoJS.SHA256(password).toString();
+        let body = {
+          username,
+          passHash
+        };
+
+        return Requester.postJSON("/api/auth", body)
+          .then(authResponse => {
+            localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
+            localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
+            Controller.loadNav();
+            window.location = "#/";
+          })
+          .catch(authError => {
+            let errorElement = $("#login-error");
+            if (authError.status === 422) {
+              Controller.errorPopup(errorElement);
+            }
+          });
+      });
   }
 
   static signup() {
@@ -124,7 +126,6 @@ export class Controller {
       .then(logoutResponse => {
         localStorage.removeItem(STORAGE_USERNAME_KEY);
         localStorage.removeItem(STORAGE_AUTH_KEY);
-
         Controller.loadLogin();
         window.location = "#/";
       })
@@ -193,7 +194,6 @@ export class Controller {
           })
           .addClass("hidden");
         $("#signup-error").toggleClass("hidden");
-        $("#signup-error-exists").toggleClass("hidden");
         $("#signup-submit").on("click", Controller.signup);
       });
   }
