@@ -17,13 +17,28 @@
                 <textarea type="text" placeholder="Enter your message, then hit the submit" class="form-control" id="feedback-form-message"
                     rows="6"></textarea>
             </div>
-            <button type="submit" class="btn btn-default pull-right">Submit</button>
+            <a href="#/feedback" class="btn btn-default pull-right">Submit</a>
         </form>
     </div>
     <aside class="col-sm-8">
         <div class="maincontent feedback">
             <h2 class="article-title">Recent Feedback</h2>
-            <div class="feedback-messages"></div>
+            <div class="feedback-messages">
+                <h1>STYLE ME ! ! !</h1>
+                {{#each result}}
+                <div class="feedback-item item-list media-list">
+                    <div class="feedback-item media">
+                        <div class="media-left"><button class="feedback-delete btn btn-xs btn-danger"><span id="{{@key}}" class="glyphicon glyphicon-remove"></span></button></div>
+                        <div class="feedback-info media-body">
+                            <div class="feedback-head">
+                                <div class="feedback-title">{{this.title}}<small class="feedback-name label label-info">{{this.name}}</small></div>
+                            </div>
+                            <div class="feedback-message">{{this.message}}</div>
+                        </div>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
         </div>
     </aside>
 </div>

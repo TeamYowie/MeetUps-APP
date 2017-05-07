@@ -1,11 +1,12 @@
-import { Controller } from "controler";
+import { Controller } from "controller";
+import { FeedbackController } from "feedback";
 
 let router = new Navigo(null, true);
 
 router
   .on("/", Controller.home)
   .on("/signup", Controller.loadSignup)
-  .on("/feedback", Controller.loadFeedback)
+  .on("/feedback", FeedbackController.loadFeedback)
   .resolve();
 
 $(document).ready(() => {
