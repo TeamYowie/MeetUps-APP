@@ -69,7 +69,7 @@ export class Controller {
               passHash
             })
               .then(signUpResponse => {
-                window.location = "#/";
+                Controller.postSignup();
               })
               .catch(signUpError => {
                 if (signUpError.status === 400) {
@@ -111,7 +111,6 @@ export class Controller {
         }
       });
   }
-
   static loadLogin() {
     Templates
       .get("login")
@@ -143,6 +142,14 @@ export class Controller {
         $("#signup-error").toggleClass("hidden");
         $("#signup-error-exists").toggleClass("hidden");
         $("#signup-submit").on("click", Controller.signup);
+      });
+  }
+
+  static postSignup() {
+    Templates
+      .get("post-signup")
+      .then(template => {
+        $("#content").html(template);
       });
   }
 
