@@ -20,16 +20,21 @@ export class FeedbackController {
                 $("#content").html(template(feedback));
                 $("#feedback-error").toggleClass("hidden");
                 $("#feedback-submit").on("click", FeedbackController.postFeedback);
+                $(".glyphicon").on("click", (e) => {
+                    FeedbackController.deleteFeedback(e.target.id);
+                });
             }
             );
     }
     static postFeedback() {
         let name = localStorage.getItem(STORAGE_USERNAME_KEY),
             title = $("#feedback-form-title").val(),
-            message = $("#feedback-form-message").val();
-
+            message = $("#feedback-form-message").val(),
+            errorElement = $("#feedback-error");
         //need some better validation
         if (!name || !title || !message) {
+            errorElement.text("Invalid Post");
+            Controller.errorPopup(errorElement);
             return;
         }
 
@@ -38,10 +43,8 @@ export class FeedbackController {
             title,
             message
         })
-            .then(res => {
-                if (res.status === 201) {
-                    FeedbackController.loadFeedback();
-                }
+            .then(() => {
+                FeedbackController.loadFeedback();
             })
             .catch(templateError => {
                 let errorElement = $("#feedback-error");
@@ -49,6 +52,13 @@ export class FeedbackController {
                     errorElement.text(templateError.responseText);
                     Controller.errorPopup(errorElement);
                 }
+            });
+    }
+
+    static deleteFeedback(id) {
+        Requester.putJSON("/api/feedback/" + id)
+            .then(() => {
+                FeedbackController.loadFeedback();
             });
     }
 }
