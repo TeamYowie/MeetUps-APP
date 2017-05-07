@@ -1,14 +1,67 @@
-<form class="form-signin">
-    <h2 class="form-signin-heading">Please fill out the info below:</h2>
-    <label for="signup-username" class="sr-only">Username</label>
-    <input type="text" id="signup-username" class="form-control" placeholder="Username" required="" autofocus="">
-    <label for="signup-password" class="sr-only">Password</label>
-    <input type="password" id="signup-password" class="form-control" placeholder="Password" required="">
-    <a id="signup-submit" class="btn btn-primary">Sign Up</a>
-    <div id="signup-error" class="alert alert-danger" role="alert">
-        <strong>Username</strong> or <strong>Password</strong> invalid.
-    </div>
-    <div id="signup-error-exists" class="alert alert-danger" role="alert">
-        That <strong>username</strong> already <strong>exists.</strong> 
-    </div>
-</form>
+<div class="container">
+  <div class="row">
+  	<div class="col-md-6 centered">
+          <form class="form-horizontal">
+          <fieldset>
+            <div id="legend">
+              <legend class="">Register</legend>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <div class="col-md-5 centered">
+                  <label id="photo-container">
+                    <input id="photo-selector" name="file" type="file" class="upload_field" data-cloudinary-field="image_id"/>
+                  </label>
+                  <div id="progress-bar" class="progress hidden">
+                    <div class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="signup-error" class="alert alert-danger" role="alert">
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label" for="signup-username">Username</label>
+              <div class="controls">
+                <input type="text" id="signup-username" name="signup-username" placeholder="" autofocus="" class="form-control input-lg">
+                <p class="help-block">Username can contain any letters or numbers, without spaces</p>
+              </div>
+            </div>
+         
+            <div class="control-group">
+              <label class="control-label" for="signup-email">E-mail</label>
+              <div class="controls">
+                <input type="email" id="signup-email" name="signup-email" placeholder="" class="form-control input-lg">
+                <p class="help-block">Please provide your E-mail</p>
+              </div>
+            </div>
+         
+            <div class="control-group">
+              <label class="control-label" for="signup-password">Password</label>
+              <div class="controls">
+                <input type="password" id="signup-password" name="signup-password" placeholder="" class="form-control input-lg">
+                <p class="help-block">Password should be at least 6 characters</p>
+              </div>
+            </div>
+         
+            <div class="control-group">
+              <label class="control-label" for="signup-password-confirm">Password (Confirm)</label>
+              <div class="controls">
+                <input type="password" id="signup-password-confirm" name="signup-password-confirm" placeholder="" class="form-control input-lg">
+                <p class="help-block">Please confirm password</p>
+              </div>
+            </div>
+         
+            <div class="control-group">
+              <div class="controls">
+                <a id="signup-submit" class="btn btn-primary">Sign Up</a>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+    </div> 
+  </div>
+</div>

@@ -4,6 +4,16 @@
     right: 20%;
     z-index: 5000;
 }
+
+#signup-error {
+    text-align: center;
+}
+
 .hidden {
     display: none;
+}
+
+.centered {
+    float: none;
+    margin: 0 auto;
 }
