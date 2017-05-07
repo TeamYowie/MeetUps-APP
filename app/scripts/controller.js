@@ -20,37 +20,34 @@ export class Controller {
 
   static login() {
     const username = $("#input-username").val();
-    const passHash = CryptoJS.SHA256($("#input-password").val()).toString();
+    const password = $("#input-password").val();
 
-    if (username && $("#input-password").val()) {
+    if (username && password) {
       Controller.isLoggedIn()
         .then(isLoggedIn => {
           if (isLoggedIn) {
             return this;
           }
-          else {
-            let body = {
-              username,
-              passHash
-            };
-            return Requester.postJSON("/api/auth", body)
-              .then(authResponse => {
-                localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
-                localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
+          
+          const passHash = CryptoJS.SHA256(password).toString();
+          let body = {
+            username,
+            passHash
+          };
 
-                Controller.loadNav();
-                window.location = "#/";
-              })
-              .catch(authError => {
-                let errorPopup = $("#login-error");
-                if (authError.status === 422) {
-                  errorPopup.toggleClass("hidden");
-                  setTimeout(() => {
-                    errorPopup.toggleClass("hidden");
-                  }, 3000);
-                }
-              });
-          }
+          return Requester.postJSON("/api/auth", body)
+            .then(authResponse => {
+              localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
+              localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
+              Controller.loadNav();
+              window.location = "#/";
+            })
+            .catch(authError => {
+              let errorElement = $("#login-error");
+              if (authError.status === 422) {
+                Controller.errorPopup(errorElement);
+              }
+            });
         });
     }
   }
@@ -70,7 +67,7 @@ export class Controller {
           return this;
         }
         
-        if (!username || !(/^[a-zA-Z]+$/.test(username))) {
+        if (!username || !(/^[a-zA-Z0-9]+$/.test(username))) {
           $(".help-block").eq(0).css("color", "red");
           return this;
         }
@@ -90,7 +87,7 @@ export class Controller {
           $(".help-block").eq(3).css("color", "red");
           return this;
         }
-        debugger;
+        
         return Requester.postJSON("/api/users", {
           username,
           passHash,
@@ -98,7 +95,7 @@ export class Controller {
           profileImage
         })
           .then(signUpResponse => {
-            window.location = "#/";
+            Controller.postSignup();
           })
           .catch(signUpError => {
             let errorPopup = $("#signup-error");
@@ -115,7 +112,7 @@ export class Controller {
 
   static logout() {
     let body = {
-       username: localStorage.getItem(STORAGE_USERNAME_KEY)
+      username: localStorage.getItem(STORAGE_USERNAME_KEY)
     };
     let options = {
       headers: {
@@ -132,12 +129,9 @@ export class Controller {
         window.location = "#/";
       })
       .catch(logoutError => {
-        let errorPopup = $("#logout-error");
+        let errorElement = $("#logout-error");
         if (logoutError.status === 422) {
-          errorPopup.toggleClass("hidden");
-          setTimeout(() => {
-            errorPopup.toggleClass("hidden");
-          }, 3000);
+          Controller.errorPopup(errorElement);
         }
       });
   }
@@ -199,7 +193,16 @@ export class Controller {
           })
           .addClass("hidden");
         $("#signup-error").toggleClass("hidden");
+        $("#signup-error-exists").toggleClass("hidden");
         $("#signup-submit").on("click", Controller.signup);
+      });
+  }
+
+  static postSignup() {
+    Templates
+      .get("post-signup")
+      .then(template => {
+        $("#content").html(template);
       });
   }
 
@@ -210,4 +213,23 @@ export class Controller {
         $("#content").html(template);
       });
   }
-}
+
+  static loadFeedback() {
+    Templates
+      .get("feedback")
+      .then(template => {
+        $("#content").html(template);
+      });
+  }
+
+  static errorPopup(errorElement) {
+    if (!errorElement.hasClass("hidden")) {
+      return;
+    }
+    $(".form-control").val("");
+    errorElement.toggleClass("hidden");
+    setTimeout(() => {
+      errorElement.toggleClass("hidden");
+    }, 3000);
+  }
+ }
