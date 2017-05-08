@@ -21,3 +21,20 @@
 .navbar-default {
     margin: 0;
 }
+
+.chat-display {
+  min-height: 150px;
+  max-height: 40vh;
+  overflow: scroll;
+  font-size: 1.2em;
+}
+
+.chat-display p {
+  font-size: .9em;
+  padding: 0 10px;
+}
+
+.chat-display p span {
+    display: inline-block;
+    padding-left: 10px;
+}

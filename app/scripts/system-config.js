@@ -8,7 +8,8 @@ System.config({
     "controller": "./scripts/controller.js",
     "requester": "./scripts/requester.js",
     "templates": "./scripts/templates.js",
-    "feedback": "./scripts/feedback-controller.js"
+    "feedback": "./scripts/feedback-controller.js",
+    "chat": "./scripts/chat-controller.js"
   }
 });
 
