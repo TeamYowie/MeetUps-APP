@@ -44,7 +44,7 @@ export class Controller {
             localStorage.setItem(STORAGE_USERNAME_ID, authResponse.result.id);
             localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
             localStorage.setItem(STORAGE_PHOTO_KEY, authResponse.result.profileImage);
-            Controller.loadNav();
+            Controller.loadNav(authResponse.result.username);
             window.location = "#/";
           })
           .catch(authError => {
@@ -148,12 +148,13 @@ export class Controller {
       });
   }
 
-  static loadNav() {
+  static loadNav(username) {
     Templates
       .get("navigation")
       .then(template => {
+        debugger;
         let content = {
-          username: localStorage.getItem(STORAGE_USERNAME_ID),
+          username: username,
           profileImage: localStorage.getItem(STORAGE_PHOTO_KEY)
         };
         let compiledHtml = template(content);
@@ -161,7 +162,7 @@ export class Controller {
         $("#logout-error").toggleClass("hidden");
         $("#profile-signout").prepend($.cloudinary.image(content.profileImage, {
           radius: 4,
-          width: 38,
+          height: 38,
           crop: "scale"
         }));
         $("#logout-button").on("click", Controller.logout);
