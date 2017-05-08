@@ -1,7 +1,7 @@
 import { Requester } from "requester";
 import { Templates } from "templates";
 const MIN_PASSWORD_LENGTH = 6;
-const STORAGE_USERNAME_KEY = "username";
+const STORAGE_USERNAME_ID = "id";
 const STORAGE_AUTH_KEY = "auth-key";
 const STORAGE_PHOTO_KEY = "profile-image";
 const HTTP_HEADER_KEY = "x-auth-key";
@@ -11,7 +11,7 @@ export class Controller {
     return Promise
       .resolve()
       .then(() => {
-        return !!localStorage.getItem(STORAGE_USERNAME_KEY) && !!localStorage.getItem(STORAGE_AUTH_KEY);
+        return !!localStorage.getItem(STORAGE_USERNAME_ID) && !!localStorage.getItem(STORAGE_AUTH_KEY);
       });
   }
 
@@ -41,7 +41,7 @@ export class Controller {
 
         return Requester.postJSON("/api/auth", body)
           .then(authResponse => {
-            localStorage.setItem(STORAGE_USERNAME_KEY, authResponse.result.username);
+            localStorage.setItem(STORAGE_USERNAME_ID, authResponse.result.id);
             localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
             localStorage.setItem(STORAGE_PHOTO_KEY, authResponse.result.profileImage);
             Controller.loadNav();
@@ -113,7 +113,7 @@ export class Controller {
 
   static logout() {
     let body = {
-      username: localStorage.getItem(STORAGE_USERNAME_KEY)
+      id: localStorage.getItem(STORAGE_USERNAME_ID)
     };
     let options = {
       headers: {
@@ -153,7 +153,7 @@ export class Controller {
       .get("navigation")
       .then(template => {
         let content = {
-          username: localStorage.getItem(STORAGE_USERNAME_KEY),
+          username: localStorage.getItem(STORAGE_USERNAME_ID),
           profileImage: localStorage.getItem(STORAGE_PHOTO_KEY)
         };
         let compiledHtml = template(content);
