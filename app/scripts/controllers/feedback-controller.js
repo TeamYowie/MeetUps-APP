@@ -27,14 +27,13 @@ export class FeedbackController {
             );
     }
     static postFeedback() {
-        let name = localStorage.getItem(STORAGE_USERNAME_KEY),
+        let name = $("#span-name").text(),
             title = $("#feedback-form-title").val(),
             message = $("#feedback-form-message").val(),
             errorElement = $("#feedback-error");
-        //need some better validation
         if (!name || !title || !message) {
             errorElement.text("Invalid Post");
-            UserController.errorPopup(errorElement);
+            UserController.elementPopupAndClearControls(errorElement);
             return;
         }
 
@@ -50,7 +49,7 @@ export class FeedbackController {
                 let errorElement = $("#feedback-error");
                 if (templateError.status === 422) {
                     errorElement.text(templateError.responseText);
-                    UserController.errorPopup(errorElement);
+                    UserController.elementPopupAndClearControls(errorElement);
                 }
             });
     }

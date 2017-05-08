@@ -29,6 +29,9 @@ export class ChatController {
             username: chatUsername.val(),
             message: chatMessage.val()
         };
+        if(!result.username || !result.message){
+            return;
+        }
         Templates.get("chat-message")
             .then(template => {
                 $(".chat-display").prepend(template(result));
