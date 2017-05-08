@@ -1,10 +1,10 @@
 import { Requester } from "requester";
 import { Templates } from "templates";
-import { Controller } from "controller";
+import { UserController } from "user";
 
 export class ChatController {
     static loadChat() {
-        Promise.all([Controller.isLoggedIn(), Templates.get("chat")])
+        Promise.all([UserController.isLoggedIn(), Templates.get("chat")])
             .then(([isLoggedIn, template]) => {
                 if (!isLoggedIn) {
                     window.location = "#/signup";

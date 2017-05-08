@@ -5,11 +5,11 @@ System.config({
     "systemjs-babel-build": "./node_modules/systemjs-plugin-babel/systemjs-babel-browser.js",
 
     "app": "./scripts/app.js",
-    "controller": "./scripts/controller.js",
+    "user": "./scripts/controllers/user-controller.js",
     "requester": "./scripts/requester.js",
     "templates": "./scripts/templates.js",
-    "feedback": "./scripts/feedback-controller.js",
-    "chat": "./scripts/chat-controller.js"
+    "feedback": "./scripts/controllers/feedback-controller.js",
+    "chat": "./scripts/controllers/chat-controller.js"
   }
 });
 

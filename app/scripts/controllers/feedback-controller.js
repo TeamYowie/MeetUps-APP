@@ -1,13 +1,13 @@
 import { Requester } from "requester";
 import { Templates } from "templates";
-import { Controller } from "controller";
+import { UserController } from "user";
 
 const STORAGE_USERNAME_KEY = "username";
 
 export class FeedbackController {
     static loadFeedback() {
         let feedback;
-        Promise.all([Controller.isLoggedIn(), Requester.getJSON("/api/feedback")])
+        Promise.all([UserController.isLoggedIn(), Requester.getJSON("/api/feedback")])
             .then(([isLoggedIn, data]) => {
                 if (!isLoggedIn) {
                     window.location = "#/signup";
@@ -34,7 +34,7 @@ export class FeedbackController {
         //need some better validation
         if (!name || !title || !message) {
             errorElement.text("Invalid Post");
-            Controller.errorPopup(errorElement);
+            UserController.errorPopup(errorElement);
             return;
         }
 
@@ -50,7 +50,7 @@ export class FeedbackController {
                 let errorElement = $("#feedback-error");
                 if (templateError.status === 422) {
                     errorElement.text(templateError.responseText);
-                    Controller.errorPopup(errorElement);
+                    UserController.errorPopup(errorElement);
                 }
             });
     }

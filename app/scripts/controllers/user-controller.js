@@ -6,7 +6,7 @@ const STORAGE_AUTH_KEY = "auth-key";
 const STORAGE_PHOTO_KEY = "profile-image";
 const HTTP_HEADER_KEY = "x-auth-key";
 
-export class Controller {
+export class UserController {
   static isLoggedIn() {
     return Promise
       .resolve()
@@ -16,7 +16,7 @@ export class Controller {
   }
 
   static home() {
-    Controller.loadHome();
+    UserController.loadHome();
   }
 
   static login() {
@@ -27,7 +27,7 @@ export class Controller {
       return this;
     }
 
-    Controller.isLoggedIn()
+    UserController.isLoggedIn()
       .then(isLoggedIn => {
         if (isLoggedIn) {
           return this;
@@ -44,13 +44,13 @@ export class Controller {
             localStorage.setItem(STORAGE_USERNAME_ID, authResponse.result.id);
             localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
             localStorage.setItem(STORAGE_PHOTO_KEY, authResponse.result.profileImage);
-            Controller.loadNav(authResponse.result.username);
+            UserController.loadNav(authResponse.result.username);
             window.location = "#/";
           })
           .catch(authError => {
             let errorElement = $("#login-error");
             if (authError.status === 422) {
-              Controller.errorPopup(errorElement);
+              UserController.errorPopup(errorElement);
             }
           });
       });
@@ -65,7 +65,7 @@ export class Controller {
     const passHash = CryptoJS.SHA256(password).toString();
     $(".help-block").css("color", "#737373");
 
-    Controller.isLoggedIn()
+    UserController.isLoggedIn()
       .then(isLoggedIn => {
         if (isLoggedIn) {
           return this;
@@ -99,13 +99,13 @@ export class Controller {
           profileImage
         })
           .then(signUpResponse => {
-            Controller.postSignup();
+            UserController.postSignup();
           })
           .catch(signUpError => {
             let errorElement = $("#signup-error");
             if (signUpError.status === 422 || signUpError.status === 409) {
               errorElement.text(signUpError.responseText);
-              Controller.errorPopup(errorElement);
+              UserController.errorPopup(errorElement);
             }
           });
       });
@@ -123,13 +123,13 @@ export class Controller {
 
     return Requester.postJSON("/api/logout", body, options)
       .then(logoutResponse => {
-        Controller.loadLogin();
+        UserController.loadLogin();
         window.location = "#/";
       })
       .catch(logoutError => {
         let errorElement = $("#logout-error");
         if (logoutError.status === 422) {
-          Controller.errorPopup(errorElement);
+          UserController.errorPopup(errorElement);
         }
       });
   }
@@ -140,7 +140,7 @@ export class Controller {
       .then(template => {
         $("#main-nav").html(template);
         $("#login-error").toggleClass("hidden");
-        $("#login-button").on("click", Controller.login);
+        $("#login-button").on("click", UserController.login);
         $("#signup-button").on("click", () => {
           window.location = "#/signup";
         });
@@ -152,7 +152,6 @@ export class Controller {
     Templates
       .get("navigation")
       .then(template => {
-        debugger;
         let content = {
           username: username,
           profileImage: localStorage.getItem(STORAGE_PHOTO_KEY)
@@ -165,7 +164,7 @@ export class Controller {
           height: 38,
           crop: "scale"
         }));
-        $("#logout-button").on("click", Controller.logout);
+        $("#logout-button").on("click", UserController.logout);
       });
   }
 
@@ -203,7 +202,7 @@ export class Controller {
           })
           .addClass("hidden");
         $("#signup-error").toggleClass("hidden");
-        $("#signup-submit").on("click", Controller.signup);
+        $("#signup-submit").on("click", UserController.signup);
       });
   }
 
