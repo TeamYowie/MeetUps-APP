@@ -8,9 +8,11 @@ export class Requester {
     }));
   }
 
-  static getJSON(endpoint) {
+  static getJSON(endpoint, options = {}) {
+    let headers = options.headers || {};
     return Promise.resolve($.ajax({
       url: API_URL + endpoint,
+      headers,
       method: "GET",
       contentType: "application/json"
     }));

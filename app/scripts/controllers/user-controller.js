@@ -1,7 +1,7 @@
 import { Requester } from "requester";
 import { Templates } from "templates";
 const MIN_PASSWORD_LENGTH = 6;
-const STORAGE_USERNAME_ID = "id";
+const STORAGE_ID_KEY = "id";
 const STORAGE_AUTH_KEY = "auth-key";
 const STORAGE_PHOTO_KEY = "profile-image";
 const HTTP_HEADER_KEY = "x-auth-key";
@@ -11,12 +11,8 @@ export class UserController {
     return Promise
       .resolve()
       .then(() => {
-        return !!localStorage.getItem(STORAGE_USERNAME_ID) && !!localStorage.getItem(STORAGE_AUTH_KEY);
+        return !!localStorage.getItem(STORAGE_ID_KEY) && !!localStorage.getItem(STORAGE_AUTH_KEY);
       });
-  }
-
-  static home() {
-    UserController.loadHome();
   }
 
   static login() {
@@ -41,16 +37,16 @@ export class UserController {
 
         return Requester.postJSON("/api/auth", body)
           .then(authResponse => {
-            localStorage.setItem(STORAGE_USERNAME_ID, authResponse.result.id);
+            localStorage.setItem(STORAGE_ID_KEY, authResponse.result.id);
             localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
             localStorage.setItem(STORAGE_PHOTO_KEY, authResponse.result.profileImage);
             UserController.loadNav(authResponse.result.username);
             window.location = "#/";
           })
           .catch(authError => {
-            let errorElement = $("#login-error");
+            let $errorElement = $("#login-error");
             if (authError.status === 422) {
-              UserController.errorPopup(errorElement);
+              UserController.elementPopupAndClearControls($errorElement);
             }
           });
       });
@@ -105,7 +101,94 @@ export class UserController {
             let errorElement = $("#signup-error");
             if (signUpError.status === 422 || signUpError.status === 409) {
               errorElement.text(signUpError.responseText);
-              UserController.errorPopup(errorElement);
+              UserController.elementPopupAndClearControls(errorElement);
+            }
+          });
+      });
+  }
+
+  static saveProfile() {
+    const firstname = $("#new-firstname").val();
+    const lastname = $("#new-lastname").val();
+    const email = $("#new-email").val();
+    const newPassword = $("#new-password").val();
+    const newPasswordConfirmation = $("#new-password-confirm").val();
+    const profileImage = $("#profile-photo").attr("src").split(/[\/]/).pop();
+    const passHash = CryptoJS.SHA256($("#password").val()).toString();
+    const newPassHash = CryptoJS.SHA256(newPassword).toString();
+
+    UserController.isLoggedIn()
+      .then(isLoggedIn => {
+        if (!isLoggedIn) {
+          return this;
+        }
+
+        let newData = {
+          passHash,
+          profileImage
+        };
+        
+        if (firstname) {
+          newData.firstname = firstname;
+        }
+
+        if (lastname) {
+          newData.lastname = lastname;
+        }
+        
+        let pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (email) {
+          if (pattern.test(email)) {
+            newData.email = email;
+          }
+          else {
+            let $errorElement = $("#profile-error");
+            $errorElement.text("Please provide valid email.");
+            UserController.elementPopup($errorElement);
+            return this;
+          }
+        }
+        
+        if (newPassword) {
+          if (newPassword.length >= MIN_PASSWORD_LENGTH) {
+            if (newPassword === newPasswordConfirmation) {
+              newData.newPassHash = newPassHash;
+            }
+            else {
+              let $errorElement = $("#profile-error");
+              $errorElement.text("Passwords do not match.");
+              UserController.elementPopup($errorElement);
+              return this;
+            }
+          }
+          else {
+            let $errorElement = $("#profile-error");
+            $errorElement.text("Password should be at least 6 characters.");
+            UserController.elementPopup($errorElement);
+            return this;
+          }
+        }
+        
+        let endpointOffset = "/api/user/" + localStorage.getItem(STORAGE_ID_KEY);
+        let options = {
+          headers: {
+            [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+          }
+        };
+
+        return Requester.putJSON(endpointOffset, newData, options)
+          .then(profileResponse => {
+            let $successElement = $("#save-success");
+            $("#password").val("");
+            $("#new-password").val("");
+            $("#new-password-confirm").val("");
+            UserController.elementPopup($successElement);
+          })
+          .catch(profileError => {
+            let $errorElement = $("#profile-error");
+            if (profileError.status === 422) {
+              $errorElement.text(profileError.responseText);
+              UserController.elementPopup($errorElement);
             }
           });
       });
@@ -113,7 +196,7 @@ export class UserController {
 
   static logout() {
     let body = {
-      id: localStorage.getItem(STORAGE_USERNAME_ID)
+      id: localStorage.getItem(STORAGE_ID_KEY)
     };
     let options = {
       headers: {
@@ -129,7 +212,7 @@ export class UserController {
       .catch(logoutError => {
         let errorElement = $("#logout-error");
         if (logoutError.status === 422) {
-          UserController.errorPopup(errorElement);
+          UserController.elementPopup(errorElement);
         }
       });
   }
@@ -159,11 +242,15 @@ export class UserController {
         let compiledHtml = template(content);
         $("#main-nav").html(compiledHtml);
         $("#logout-error").toggleClass("hidden");
-        $("#profile-signout").prepend($.cloudinary.image(content.profileImage, {
-          radius: 4,
-          height: 38,
-          crop: "scale"
-        }));
+        $("#profile-link").prepend(
+          $.cloudinary.image(content.profileImage, {
+            radius: "max",
+            height: 38,
+            width: 38,
+            crop: "scale"
+          })
+            .addClass("avatar img-circle img-thumbnail")
+        );
         $("#logout-button").on("click", UserController.logout);
       });
   }
@@ -173,36 +260,87 @@ export class UserController {
       .get("signup")
       .then(template => {
         $("#content").html(template);
-        $("#photo-container").prepend($.cloudinary.image("default-profile-picture.svg", {
-          radius: 20,
-          width: 150,
-          crop: "scale"
-        }));
-        $("#photo-selector").unsigned_cloudinary_upload("q3olokl1",
-          { cloud_name: "teamyowie", tags: "browser_uploads" })
-          .bind("cloudinarydone", (e, data) => {
-            $("#progress-bar")
-              .addClass("hidden");
-            $("#photo-container").html($.cloudinary.image(data.result.public_id, {
-              width: 150,
+        $("#photo-container").prepend(
+            $.cloudinary.image("default-profile-picture.svg", {
+              radius: "max",
               height: 150,
-              crop: "thumb",
-              gravity: "face",
-              effect: "saturation:50",
-              radius: 20
-            }));
-          })
-          .bind("cloudinaryprogress", function (e, data) {
-            let currentPercentage = Math.round((data.loaded * 100.0) / data.total) + "%";
-            $("#progress-bar")
-              .removeClass("hidden");
-            $(".progress-bar-info")
-              .css("width", currentPercentage)
-              .text(currentPercentage);
-          })
-          .addClass("hidden");
+              width: 150,
+              crop: "scale"
+            })
+              .addClass("avatar img-circle img-thumbnail")
+        );
         $("#signup-error").toggleClass("hidden");
         $("#signup-submit").on("click", UserController.signup);
+      });
+  }
+
+  static loadProfile() {
+    Promise.all([UserController.isLoggedIn(), Templates.get("profile"),])
+      .then(([isLoggedIn, template]) => {
+        if (!isLoggedIn) {
+            window.location = "#/";
+            return this;
+        }
+        let endpointOffset = "/api/user/" + localStorage.getItem(STORAGE_ID_KEY);
+        let options = {
+          headers: {
+            [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+          }
+        };
+        Requester.getJSON(endpointOffset, options)
+          .then(profileRespose => {
+            let compiledHtml = template(profileRespose.result);
+            $("#content").html(compiledHtml);
+            $("#profile-save").on("click", UserController.saveProfile);
+            $("#profile-error").toggleClass("hidden");
+            $("#save-success").toggleClass("hidden");
+            $("#photo-container").prepend(
+              $.cloudinary.image(profileRespose.result.profileImage, {
+                radius: "max",
+                height: 150,
+                width: 150,
+                crop: "scale"
+              })
+                .addClass("avatar img-circle img-thumbnail")
+                .attr("id", "profile-photo")
+            );
+            $("#photo-selector").unsigned_cloudinary_upload("q3olokl1", {
+              cloud_name: "teamyowie",
+              tags: "browser_uploads"
+            })
+              .bind("cloudinarydone", (e, data) => {
+                $("#profile-photo").remove();
+                $("#progress-bar")
+                  .addClass("hidden");
+                $("#photo-container").html(
+                  $.cloudinary.image(data.result.public_id, {
+                    radius: "max",
+                    height: 150,
+                    width: 150,
+                    crop: "scale"
+                  })
+                    .addClass("avatar img-circle img-thumbnail")
+                    .attr("id", "profile-photo")
+                );
+              })
+              .bind("cloudinaryprogress", function (e, data) {
+                let currentPercentage = Math.round((data.loaded * 100.0) / data.total) + "%";
+                $("#photo-selector")
+                  .addClass("hidden");
+                $("#progress-bar")
+                  .removeClass("hidden");
+                $(".progress-bar-info")
+                  .css("width", currentPercentage)
+                  .text(currentPercentage);
+              });
+          })
+          .catch(profileError => {
+            let errorElement = $("#profile-error");
+            if (profileError.status === 422) {
+              errorElement.text(profileError.responseText);
+              UserController.elementPopup(errorElement);
+            }
+          });
       });
   }
 
@@ -219,23 +357,49 @@ export class UserController {
       .get("home")
       .then(template => {
         $("#content").html(template);
-        $(".item").eq(0).append($.cloudinary.image("fill1.png", {height: 1080, width: 1900, crop: "scale"}));
-        $(".item").eq(1).append($.cloudinary.image("fill2.jpg", {height: 1080, width: 1900, crop: "scale"}));
-        $(".item").eq(2).append($.cloudinary.image("fill3.jpg", {height: 1080, width: 1900, crop: "scale"}));
+        $(".item").eq(0).append(
+          $.cloudinary.image("fill1.png", {
+            height: 920,
+            width: 1900,
+            crop: "scale"
+          })
+        );
+        $(".item").eq(1).append(
+          $.cloudinary.image("fill2.jpg", {
+            height: 920,
+            width: 1900,
+            crop: "scale"
+          })
+        );
+        $(".item").eq(2).append(
+          $.cloudinary.image("fill3.jpg", {
+            height: 920,
+            width: 1900,
+            crop: "scale"
+          })
+        );
         $('.carousel').carousel({
             interval: 5000
         });
       });
   }
 
-  static errorPopup(errorElement) {
-    if (!errorElement.hasClass("hidden")) {
+  static elementPopupAndClearControls(element) {
+    UserController.clearControls();
+    UserController.elementPopup(element);
+  }
+
+  static elementPopup(element) {
+    if (!element.hasClass("hidden")) {
       return;
     }
-    $(".form-control").val("");
-    errorElement.toggleClass("hidden");
+    element.toggleClass("hidden");
     setTimeout(() => {
-      errorElement.toggleClass("hidden");
+      element.toggleClass("hidden");
     }, 3000);
+  }
+
+  static clearControls() {
+    $(".form-control").val("");
   }
 }
