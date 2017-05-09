@@ -422,7 +422,6 @@ export class UserController {
         let panelsButton = $('.glyphicon-chevron-down');
         panels.hide();
         panelsButton.on("click", (element) => {
-          debugger;
           $(element.target).parent().parent().next().toggle();
         });
         $('[data-toggle="D"]').tooltip();
