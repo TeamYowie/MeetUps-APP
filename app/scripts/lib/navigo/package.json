@@ -1,0 +1,122 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "navigo@^4.7.0",
+        "scope": null,
+        "escapedName": "navigo",
+        "name": "navigo",
+        "rawSpec": "^4.7.0",
+        "spec": ">=4.7.0 <5.0.0",
+        "type": "range"
+      },
+      "C:\\Users\\Kiril\\Desktop\\js\\MeetUps-WebApp"
+    ]
+  ],
+  "_from": "navigo@>=4.7.0 <5.0.0",
+  "_id": "navigo@4.7.1",
+  "_inCache": true,
+  "_location": "/navigo",
+  "_nodeVersion": "6.7.0",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/navigo-4.7.1.tgz_1493757467869_0.8416344011202455"
+  },
+  "_npmUser": {
+    "name": "krasimir",
+    "email": "krasimir@outset.ws"
+  },
+  "_npmVersion": "3.10.3",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "navigo@^4.7.0",
+    "scope": null,
+    "escapedName": "navigo",
+    "name": "navigo",
+    "rawSpec": "^4.7.0",
+    "spec": ">=4.7.0 <5.0.0",
+    "type": "range"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/navigo/-/navigo-4.7.1.tgz",
+  "_shasum": "8b28980c0a1cc12e255656cd962c9c6cc5cd111c",
+  "_shrinkwrap": null,
+  "_spec": "navigo@^4.7.0",
+  "_where": "C:\\Users\\Kiril\\Desktop\\js\\MeetUps-WebApp",
+  "author": {
+    "name": "Krasimir Tsonev",
+    "email": "info@krasimirtsonev.com",
+    "url": "http://krasimirtsonev.com"
+  },
+  "bugs": {
+    "url": "https://github.com/krasimir/navigo/issues"
+  },
+  "dependencies": {},
+  "description": "A simple vanilla JavaScript router with a fallback for older browsers",
+  "devDependencies": {
+    "babel": "6.3.26",
+    "babel-core": "6.4.5",
+    "babel-eslint": "6.1.2",
+    "babel-loader": "6.2.1",
+    "babel-plugin-add-module-exports": "0.1.2",
+    "babel-preset-es2015": "6.3.13",
+    "babel-preset-stage-1": "6.3.13",
+    "babelify": "7.3.0",
+    "browserify": "13.1.1",
+    "chai": "3.5.0",
+    "eslint": "1.10.3",
+    "eslint-loader": "1.2.1",
+    "karma": "1.3.0",
+    "karma-browserify": "5.1.0",
+    "karma-chrome-launcher": "2.0.0",
+    "karma-firefox-launcher": "1.0.0",
+    "karma-mocha": "1.2.0",
+    "karma-mocha-reporter": "2.2.0",
+    "karma-phantomjs-launcher": "1.0.2",
+    "karma-source-map-support": "1.2.0",
+    "mocha": "2.4.5",
+    "sinon": "1.17.3",
+    "sinon-chai": "2.8.0",
+    "watchify": "3.7.0",
+    "webpack": "1.12.12"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "8b28980c0a1cc12e255656cd962c9c6cc5cd111c",
+    "tarball": "https://registry.npmjs.org/navigo/-/navigo-4.7.1.tgz"
+  },
+  "gitHead": "176bfd423421af8ff9a2ece0f44d6c4011a958ad",
+  "homepage": "https://github.com/krasimir/navigo#readme",
+  "jsnext:main": "src/index.js",
+  "keywords": [
+    "router",
+    "vanilla",
+    "hash",
+    "history"
+  ],
+  "license": "MIT",
+  "main": "lib/navigo.js",
+  "maintainers": [
+    {
+      "name": "krasimir",
+      "email": "krasimir@outset.ws"
+    }
+  ],
+  "name": "navigo",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/krasimir/navigo.git"
+  },
+  "scripts": {
+    "build": "WEBPACK_ENV=build ./node_modules/.bin/webpack",
+    "dev": "WEBPACK_ENV=dev ./node_modules/.bin/webpack --progress --colors --watch",
+    "test": "node ./test/karma.js",
+    "test-chrome": "node ./test/karma.js --browser=Chrome --watch=true",
+    "test-firefox": "node ./test/karma.js --browser=Firefox  --watch=true"
+  },
+  "version": "4.7.1"
+}
