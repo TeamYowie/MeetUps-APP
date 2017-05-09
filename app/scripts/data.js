@@ -57,8 +57,24 @@ export class Data {
         return Requester.getJSON(endpointOffset, options);
     }
 
+    static dataListAllUsers() {
+        let options = {
+            id: localStorage.getItem(STORAGE_ID_KEY),
+            headers: {
+                [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+            }
+        };
+        return Requester.getJSON("/api/users", options);
+    }
+
     static dataLoadFeedback() {
-        return Requester.getJSON("/api/feedback");
+        let options = {
+            id: localStorage.getItem(STORAGE_ID_KEY),
+            headers: {
+                [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+            }
+        };
+        return Requester.getJSON("/api/feedback", options);
     }
 
     static dataPostFeedback(feedback) {

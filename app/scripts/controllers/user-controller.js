@@ -263,7 +263,7 @@ export class UserController {
   }
 
   static loadProfile() {
-    Promise.all([Utils.isLoggedIn(), Templates.get("profile"),])
+    Promise.all([Utils.isLoggedIn(), Templates.get("profile")])
       .then(([isLoggedIn, template]) => {
         if (!isLoggedIn) {
           window.location = "#/";
@@ -365,5 +365,58 @@ export class UserController {
           interval: 5000
         });
       });
+  }
+
+  static listAllUsers() {
+    let data;
+    Data.dataListAllUsers()
+      .then(data => {
+        data = data;
+        return Templates.get("all-members");
+      })
+      .then(template => {
+        $("#content").html(template(data));
+        $("member-img-small").append(
+          $.cloudinary.image(this.html(), {
+            radius: "max",
+            height: 38,
+            width: 38,
+            crop: "scale"
+          })
+            .addClass("avatar img-circle img-thumbnail")
+        );
+
+        $("#member-img-big").append(
+          $.cloudinary.image(this.html(), {
+            radius: "max",
+            height: 150,
+            width: 150,
+            crop: "scale"
+          })
+            .addClass("avatar img-circle img-thumbnail")
+        );
+
+        let panels = $('.user-infos');
+        let panelsButton = $('.dropdown-user');
+        panels.hide();
+
+        panelsButton.on("click", () => {
+
+          let dataFor = $(this).attr('data-for');
+          let idFor = $(dataFor);
+
+          let currentButton = $(this);
+
+          idFor.slideToggle(400, () => {
+            if (idFor.is(':visible')) {
+              currentButton.html('<i class="glyphicon glyphicon-chevron-up text-muted"></i>');
+            }
+            else {
+              currentButton.html('<i class="glyphicon glyphicon-chevron-down text-muted"></i>');
+            }
+          })
+        });
+        $('[data-toggle="tooltip"]').tooltip();
+      })
   }
 }

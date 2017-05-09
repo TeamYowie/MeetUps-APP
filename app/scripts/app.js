@@ -10,6 +10,7 @@ router
   .on("/feedback", FeedbackController.loadFeedback)
   .on("/chat", ChatController.loadChat)
   .on("/profile", UserController.loadProfile)
+  .on("/members", UsersController.listAll)
   .resolve();
 
 $(() => {
