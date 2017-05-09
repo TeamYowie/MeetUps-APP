@@ -9,8 +9,8 @@ router
   .on("/signup", UserController.loadSignup)
   .on("/feedback", FeedbackController.loadFeedback)
   .on("/chat", ChatController.loadChat)
+  .on("/members", UserController.listAllUsers)
   .on("/profile", UserController.loadProfile)
-  .on("/members", UsersController.listAll)
   .resolve();
 
 $(() => {
@@ -20,3 +20,4 @@ $(() => {
 $.cloudinary.config({
   cloud_name: 'teamyowie'
 });
+

@@ -185,7 +185,7 @@ export class UserController {
         $("#new-password").val("");
         $("#new-password-confirm").val("");
         $("#profile-link > img").remove();
-        
+
         $("#profile-link").prepend(
           $.cloudinary.image(newData.profileImage, {
             radius: "max",
@@ -387,16 +387,18 @@ export class UserController {
   }
 
   static listAllUsers() {
-    let data;
+    let users;
     Data.dataListAllUsers()
       .then(data => {
-        data = data;
+        users = data;
         return Templates.get("all-members");
       })
       .then(template => {
-        $("#content").html(template(data));
-        $("member-img-small").append(
-          $.cloudinary.image(this.html(), {
+        $("#content").html(template(users));
+
+        let smallImage = $(".member-img-small").html();
+        $(".member-img-small").html(
+          $.cloudinary.image(smallImage, {
             radius: "max",
             height: 38,
             width: 38,
@@ -405,8 +407,9 @@ export class UserController {
             .addClass("avatar img-circle img-thumbnail")
         );
 
-        $("#member-img-big").append(
-          $.cloudinary.image(this.html(), {
+        let bigImage = $(".member-img-big").html();
+        $(".member-img-big").html(
+          $.cloudinary.image(bigImage, {
             radius: "max",
             height: 150,
             width: 150,
@@ -420,22 +423,12 @@ export class UserController {
         panels.hide();
 
         panelsButton.on("click", () => {
-
-          let dataFor = $(this).attr('data-for');
-          let idFor = $(dataFor);
-
-          let currentButton = $(this);
-
-          idFor.slideToggle(400, () => {
-            if (idFor.is(':visible')) {
-              currentButton.html('<i class="glyphicon glyphicon-chevron-up text-muted"></i>');
-            }
-            else {
-              currentButton.html('<i class="glyphicon glyphicon-chevron-down text-muted"></i>');
-            }
-          })
+          panels.toggle();
         });
-        $('[data-toggle="tooltip"]').tooltip();
+        $('[data-toggle="D"]').tooltip();
+        $('.chat-button').on("click", () => {
+          window.location = "#/chat";
+        });
       })
   }
 }

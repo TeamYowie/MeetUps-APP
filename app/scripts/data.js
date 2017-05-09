@@ -59,7 +59,6 @@ export class Data {
 
     static dataListAllUsers() {
         let options = {
-            id: localStorage.getItem(STORAGE_ID_KEY),
             headers: {
                 [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
             }
@@ -69,7 +68,6 @@ export class Data {
 
     static dataLoadFeedback() {
         let options = {
-            id: localStorage.getItem(STORAGE_ID_KEY),
             headers: {
                 [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
             }
