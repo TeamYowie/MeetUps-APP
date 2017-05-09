@@ -395,35 +395,35 @@ export class UserController {
       })
       .then(template => {
         $("#content").html(template(users));
-
-        let smallImage = $(".member-img-small").html();
-        $(".member-img-small").html(
-          $.cloudinary.image(smallImage, {
-            radius: "max",
-            height: 38,
-            width: 38,
-            crop: "scale"
-          })
-            .addClass("avatar img-circle img-thumbnail")
-        );
-
-        let bigImage = $(".member-img-big").html();
-        $(".member-img-big").html(
-          $.cloudinary.image(bigImage, {
-            radius: "max",
-            height: 150,
-            width: 150,
-            crop: "scale"
-          })
-            .addClass("avatar img-circle img-thumbnail")
-        );
+        $(".member-img-small").each(function(i, element) {
+          $(element).html(
+            $.cloudinary.image($(this).text().trim(), {
+              radius: "max",
+              height: 38,
+              width: 38,
+              crop: "scale"
+            })
+              .addClass("avatar img-circle img-thumbnail")
+          );
+        })
+        $(".member-img-big").each(function(i, element) {
+          $(element).html(
+            $.cloudinary.image($(this).text().trim(), {
+              radius: "max",
+              height: 150,
+              width: 150,
+              crop: "scale"
+            })
+              .addClass("avatar img-circle img-thumbnail")
+          );
+        })
 
         let panels = $('.user-infos');
-        let panelsButton = $('.dropdown-user');
+        let panelsButton = $('.glyphicon-chevron-down');
         panels.hide();
-
-        panelsButton.on("click", () => {
-          panels.toggle();
+        panelsButton.on("click", (element) => {
+          debugger;
+          $(element.target).parent().parent().next().toggle();
         });
         $('[data-toggle="D"]').tooltip();
         $('.chat-button').on("click", () => {
