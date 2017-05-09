@@ -1,6 +1,8 @@
 {
   "name": "meetups-webapp",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "dependencies": {
     "blueimp-file-upload": "^9.18.0",
     "bootstrap": "^3.3.7",
@@ -12,5 +14,11 @@
     "socket.io": "^2.0.1",
     "systemjs": "^0.20.12",
     "systemjs-plugin-babel": "0.0.21"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "npm install"
+  },
+  "author": "",
+  "license": "ISC"
 }
