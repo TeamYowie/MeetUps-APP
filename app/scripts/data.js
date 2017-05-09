@@ -62,10 +62,28 @@ export class Data {
     }
 
     static dataPostFeedback(feedback) {
-        return Requester.postJSON("/api/feedback", feedback);
+        let body = {
+            feedback: feedback,
+            id: localStorage.getItem(STORAGE_ID_KEY)
+        };
+        let options = {
+            headers: {
+                [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+            }
+        };
+        return Requester.postJSON("/api/feedback", body, options);
     }
-    
-    static dataDeleteFeedback(id){
-        return Requester.putJSON("/api/feedback/" + id);
+
+    static dataDeleteFeedback(id) {
+        let endpointOffset = "/api/feedback/" + id;
+        let body = {
+            id: localStorage.getItem(STORAGE_ID_KEY)
+        };
+        let options = {
+            headers: {
+                [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
+            }
+        };
+        return Requester.putJSON(endpointOffset, body, options);
     }
 }
