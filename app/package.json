@@ -2,13 +2,14 @@
   "name": "meetups-webapp",
   "version": "0.0.1",
   "dependencies": {
+    "blueimp-file-upload": "^9.18.0",
     "bootstrap": "^3.3.7",
+    "cloudinary-jquery-file-upload": "^2.3.0",
     "crypto-js": "^3.1.9-1",
     "handlebars": "^4.0.7",
     "jquery": "^3.2.1",
     "navigo": "^4.7.0",
-    "blueimp-file-upload": "^9.18.0",
-    "cloudinary-jquery-file-upload": "^2.3.0",
+    "socket.io": "^2.0.1",
     "systemjs": "^0.20.12",
     "systemjs-plugin-babel": "0.0.21"
   }
