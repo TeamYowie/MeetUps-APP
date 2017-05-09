@@ -234,6 +234,11 @@ export class UserController {
           })
             .addClass("avatar img-circle img-thumbnail")
         );
+        $("ul.nav.navbar-nav").find("li").removeClass("active");
+        $("nav.navbar.navbar-default").on("click", (e) => {
+          $("ul.nav.navbar-nav").find("li").removeClass("active");
+          $(e.target).parent().addClass("active");
+        });
         $("#logout-button").on("click", UserController.logout);
       });
   }
