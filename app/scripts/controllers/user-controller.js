@@ -1,20 +1,11 @@
-import { Requester } from "requester";
 import { Templates } from "templates";
-const MIN_PASSWORD_LENGTH = 6;
-const STORAGE_ID_KEY = "id";
-const STORAGE_AUTH_KEY = "auth-key";
+import { Data } from "data";
+import { Validator } from "validator";
+import { Utils } from "utils";
+
 const STORAGE_PHOTO_KEY = "profile-image";
-const HTTP_HEADER_KEY = "x-auth-key";
 
 export class UserController {
-  static isLoggedIn() {
-    return Promise
-      .resolve()
-      .then(() => {
-        return !!localStorage.getItem(STORAGE_ID_KEY) && !!localStorage.getItem(STORAGE_AUTH_KEY);
-      });
-  }
-
   static login() {
     const username = $("#input-username").val();
     const password = $("#input-password").val();
@@ -23,32 +14,29 @@ export class UserController {
       return this;
     }
 
-    UserController.isLoggedIn()
+    Utils.isLoggedIn()
       .then(isLoggedIn => {
         if (isLoggedIn) {
           return this;
         }
+      });
 
-        const passHash = CryptoJS.SHA256(password).toString();
-        let body = {
-          username,
-          passHash
-        };
+    const passHash = CryptoJS.SHA256(password).toString();
+    let body = {
+      username,
+      passHash
+    };
 
-        return Requester.postJSON("/api/auth", body)
-          .then(authResponse => {
-            localStorage.setItem(STORAGE_ID_KEY, authResponse.result.id);
-            localStorage.setItem(STORAGE_AUTH_KEY, authResponse.result.authKey);
-            localStorage.setItem(STORAGE_PHOTO_KEY, authResponse.result.profileImage);
-            UserController.loadNav(authResponse.result.username);
-            window.location = "#/";
-          })
-          .catch(authError => {
-            let $errorElement = $("#login-error");
-            if (authError.status === 422) {
-              UserController.elementPopupAndClearControls($errorElement);
-            }
-          });
+    return Data.dataLogin(body)
+      .then(username => {
+        UserController.loadNav(username.username);
+        window.location = "#/";
+      })
+      .catch(authError => {
+        let $errorElement = $("#login-error");
+        if (authError.status === 422) {
+          Utils.elementPopupAndClearControls($errorElement);
+        }
       });
   }
 
@@ -61,49 +49,50 @@ export class UserController {
     const passHash = CryptoJS.SHA256(password).toString();
     $(".help-block").css("color", "#737373");
 
-    UserController.isLoggedIn()
+    Utils.isLoggedIn()
       .then(isLoggedIn => {
         if (isLoggedIn) {
           return this;
         }
+      });
 
-        if (!username || !(/^[a-zA-Z0-9]+$/.test(username))) {
-          $(".help-block").eq(0).css("color", "red");
-          return this;
+    if (Validator.validUsername(username)) {
+      $(".help-block").eq(0).css("color", "red");
+      return this;
+    }
+
+    if (Validator.validEmail(email)) {
+      $(".help-block").eq(1).css("color", "red");
+      return this;
+    }
+
+    if (Validator.validPassword(password)) {
+      $(".help-block").eq(2).css("color", "red");
+      return this;
+    }
+
+    if (Validator.confirmPassword(password, passwordConfirmation)) {
+      $(".help-block").eq(3).css("color", "red");
+      return this;
+    }
+
+    let body = {
+      username,
+      passHash,
+      email,
+      profileImage
+    };
+
+    return Data.dataSignup(body)
+      .then(signUpResponse => {
+        UserController.postSignup();
+      })
+      .catch(signUpError => {
+        let errorElement = $("#signup-error");
+        if (signUpError.status === 422 || signUpError.status === 409) {
+          errorElement.text(signUpError.responseText);
+          Utils.elementPopupAndClearControls(errorElement);
         }
-
-        let pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!email || !(pattern.test(email))) {
-          $(".help-block").eq(1).css("color", "red");
-          return this;
-        }
-
-        if (!password || !(typeof password === "string") || !(password.length >= MIN_PASSWORD_LENGTH)) {
-          $(".help-block").eq(2).css("color", "red");
-          return this;
-        }
-
-        if (!passwordConfirmation || !(password === passwordConfirmation)) {
-          $(".help-block").eq(3).css("color", "red");
-          return this;
-        }
-
-        return Requester.postJSON("/api/users", {
-          username,
-          passHash,
-          email,
-          profileImage
-        })
-          .then(signUpResponse => {
-            UserController.postSignup();
-          })
-          .catch(signUpError => {
-            let errorElement = $("#signup-error");
-            if (signUpError.status === 422 || signUpError.status === 409) {
-              errorElement.text(signUpError.responseText);
-              UserController.elementPopupAndClearControls(errorElement);
-            }
-          });
       });
   }
 
@@ -117,94 +106,85 @@ export class UserController {
     const passHash = CryptoJS.SHA256($("#password").val()).toString();
     const newPassHash = CryptoJS.SHA256(newPassword).toString();
 
-    UserController.isLoggedIn()
+    Utils.isLoggedIn()
       .then(isLoggedIn => {
         if (!isLoggedIn) {
           return this;
         }
+      });
 
-        let newData = {
-          passHash,
-          profileImage
-        };
-        
-        if (firstname) {
-          newData.firstname = firstname;
-        }
+    let newData = {
+      passHash,
+      profileImage
+    };
 
-        if (lastname) {
-          newData.lastname = lastname;
-        }
-        
-        let pattern = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (email) {
-          if (pattern.test(email)) {
-            newData.email = email;
-          }
-          else {
-            let $errorElement = $("#profile-error");
-            $errorElement.text("Please provide valid email.");
-            UserController.elementPopup($errorElement);
-            return this;
-          }
-        }
-        
-        if (newPassword) {
-          if (newPassword.length >= MIN_PASSWORD_LENGTH) {
-            if (newPassword === newPasswordConfirmation) {
-              newData.newPassHash = newPassHash;
-            }
-            else {
-              let $errorElement = $("#profile-error");
-              $errorElement.text("Passwords do not match.");
-              UserController.elementPopup($errorElement);
-              return this;
-            }
-          }
-          else {
-            let $errorElement = $("#profile-error");
-            $errorElement.text("Password should be at least 6 characters.");
-            UserController.elementPopup($errorElement);
-            return this;
-          }
-        }
-        
-        let endpointOffset = "/api/user/" + localStorage.getItem(STORAGE_ID_KEY);
-        let options = {
-          headers: {
-            [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
-          }
-        };
+    let $errorElement = $("#profile-error");
 
-        return Requester.putJSON(endpointOffset, newData, options)
-          .then(profileResponse => {
-            let $successElement = $("#save-success");
-            $("#password").val("");
-            $("#new-password").val("");
-            $("#new-password-confirm").val("");
-            UserController.elementPopup($successElement);
-          })
-          .catch(profileError => {
-            let $errorElement = $("#profile-error");
-            if (profileError.status === 422) {
-              $errorElement.text(profileError.responseText);
-              UserController.elementPopup($errorElement);
-            }
-          });
+    if (!Validator.validUsername(firstname)) {
+      newData.firstname = firstname;
+    }
+    else {
+      $errorElement.text("Please provide valid First Name.");
+      Utils.elementPopup($errorElement);
+      return this;
+    }
+
+    if (!Validator.validUsername(lastname)) {
+      newData.lastname = lastname;
+    }
+    else {
+      $errorElement.text("Please provide valid Last Name.");
+      Utils.elementPopup($errorElement);
+      return this;
+    }
+
+    if (email) {
+      if (!Validator.validEmail(email)) {
+        newData.email = email;
+      }
+      else {
+        $errorElement.text("Please provide valid email.");
+        Utils.elementPopup($errorElement);
+        return this;
+      }
+    }
+
+    if (newPassword) {
+      if (!Validator.validPassword(newPassword)) {
+        if (!Validator.confirmPassword(newPassword, newPasswordConfirmation)) {
+          newData.newPassHash = newPassHash;
+        }
+        else {
+          $errorElement.text("Passwords do not match.");
+          Utils.elementPopup($errorElement);
+          return this;
+        }
+      }
+      else {
+        $errorElement.text("Password should be at least 6 characters.");
+        Utils.elementPopup($errorElement);
+        return this;
+      }
+    }
+
+    return Data.dataSaveProfile(newData)
+      .then(profileResponse => {
+        let $successElement = $("#save-success");
+        $("#password").val("");
+        $("#new-password").val("");
+        $("#new-password-confirm").val("");
+        Utils.elementPopup($successElement);
+      })
+      .catch(profileError => {
+        if (profileError.status === 422) {
+          $errorElement.text(profileError.responseText);
+          Utils.elementPopup($errorElement);
+        }
       });
   }
 
   static logout() {
-    let body = {
-      id: localStorage.getItem(STORAGE_ID_KEY)
-    };
-    let options = {
-      headers: {
-        [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
-      }
-    };
-
-    return Requester.postJSON("/api/logout", body, options)
+    return Data.dataLogout()
       .then(logoutResponse => {
         UserController.loadLogin();
         window.location = "#/";
@@ -212,7 +192,7 @@ export class UserController {
       .catch(logoutError => {
         let errorElement = $("#logout-error");
         if (logoutError.status === 422) {
-          UserController.elementPopup(errorElement);
+          Utils.elementPopup(errorElement);
         }
       });
   }
@@ -261,13 +241,13 @@ export class UserController {
       .then(template => {
         $("#content").html(template);
         $("#photo-container").prepend(
-            $.cloudinary.image("default-profile-picture.svg", {
-              radius: "max",
-              height: 150,
-              width: 150,
-              crop: "scale"
-            })
-              .addClass("avatar img-circle img-thumbnail")
+          $.cloudinary.image("default-profile-picture.svg", {
+            radius: "max",
+            height: 150,
+            width: 150,
+            crop: "scale"
+          })
+            .addClass("avatar img-circle img-thumbnail")
         );
         $("#signup-error").toggleClass("hidden");
         $("#signup-submit").on("click", UserController.signup);
@@ -275,19 +255,14 @@ export class UserController {
   }
 
   static loadProfile() {
-    Promise.all([UserController.isLoggedIn(), Templates.get("profile"),])
+    Promise.all([Utils.isLoggedIn(), Templates.get("profile"),])
       .then(([isLoggedIn, template]) => {
         if (!isLoggedIn) {
-            window.location = "#/";
-            return this;
+          window.location = "#/";
+          return this;
         }
-        let endpointOffset = "/api/user/" + localStorage.getItem(STORAGE_ID_KEY);
-        let options = {
-          headers: {
-            [HTTP_HEADER_KEY]: localStorage.getItem(STORAGE_AUTH_KEY)
-          }
-        };
-        Requester.getJSON(endpointOffset, options)
+
+        return Data.dataLoadProfile()
           .then(profileRespose => {
             let compiledHtml = template(profileRespose.result);
             $("#content").html(compiledHtml);
@@ -338,7 +313,7 @@ export class UserController {
             let errorElement = $("#profile-error");
             if (profileError.status === 422) {
               errorElement.text(profileError.responseText);
-              UserController.elementPopup(errorElement);
+              Utils.elementPopup(errorElement);
             }
           });
       });
@@ -379,27 +354,8 @@ export class UserController {
           })
         );
         $('.carousel').carousel({
-            interval: 5000
+          interval: 5000
         });
       });
-  }
-
-  static elementPopupAndClearControls(element) {
-    UserController.clearControls();
-    UserController.elementPopup(element);
-  }
-
-  static elementPopup(element) {
-    if (!element.hasClass("hidden")) {
-      return;
-    }
-    element.toggleClass("hidden");
-    setTimeout(() => {
-      element.toggleClass("hidden");
-    }, 3000);
-  }
-
-  static clearControls() {
-    $(".form-control").val("");
   }
 }

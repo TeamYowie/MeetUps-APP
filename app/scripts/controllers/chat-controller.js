@@ -1,10 +1,9 @@
-import { Requester } from "requester";
 import { Templates } from "templates";
-import { UserController } from "user";
+import { Utils } from "utils";
 
 export class ChatController {
     static loadChat() {
-        Promise.all([UserController.isLoggedIn(), Templates.get("chat")])
+        Promise.all([Utils.isLoggedIn(), Templates.get("chat")])
             .then(([isLoggedIn, template]) => {
                 if (!isLoggedIn) {
                     window.location = "#/signup";
@@ -29,7 +28,7 @@ export class ChatController {
             username: chatUsername.val(),
             message: chatMessage.val()
         };
-        if(!result.username || !result.message){
+        if (!result.username || !result.message) {
             return;
         }
         Templates.get("chat-message")

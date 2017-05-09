@@ -1,13 +1,13 @@
-import { Requester } from "requester";
 import { Templates } from "templates";
-import { UserController } from "user";
+import { Data } from "data";
+import { Utils } from "utils";
 
 const STORAGE_USERNAME_KEY = "username";
 
 export class FeedbackController {
     static loadFeedback() {
         let feedback;
-        Promise.all([UserController.isLoggedIn(), Requester.getJSON("/api/feedback")])
+        Promise.all([Utils.isLoggedIn(), Data.dataLoadFeedback()])
             .then(([isLoggedIn, data]) => {
                 if (!isLoggedIn) {
                     window.location = "#/signup";
@@ -33,15 +33,17 @@ export class FeedbackController {
             errorElement = $("#feedback-error");
         if (!name || !title || !message) {
             errorElement.text("Invalid Post");
-            UserController.elementPopupAndClearControls(errorElement);
+            Utils.elementPopupAndClearControls(errorElement);
             return;
         }
 
-        Requester.postJSON("/api/feedback", {
+        let feedback = {
             name,
             title,
             message
-        })
+        };
+
+        Data.dataPostFeedback(feedback)
             .then(() => {
                 FeedbackController.loadFeedback();
             })
@@ -49,13 +51,13 @@ export class FeedbackController {
                 let errorElement = $("#feedback-error");
                 if (templateError.status === 422) {
                     errorElement.text(templateError.responseText);
-                    UserController.elementPopupAndClearControls(errorElement);
+                    Utils.elementPopupAndClearControls(errorElement);
                 }
             });
     }
 
     static deleteFeedback(id) {
-        Requester.putJSON("/api/feedback/" + id)
+        Data.dataDeleteFeedback(id)
             .then(() => {
                 FeedbackController.loadFeedback();
             });

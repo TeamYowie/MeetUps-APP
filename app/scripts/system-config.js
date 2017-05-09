@@ -9,7 +9,10 @@ System.config({
     "requester": "./scripts/requester.js",
     "templates": "./scripts/templates.js",
     "feedback": "./scripts/controllers/feedback-controller.js",
-    "chat": "./scripts/controllers/chat-controller.js"
+    "chat": "./scripts/controllers/chat-controller.js",
+    "data": "./scripts/data.js",
+    "validator": "./scripts/validator.js",
+    "utils": "./scripts/utils.js"
   }
 });
 
