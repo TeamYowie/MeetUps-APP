@@ -47,7 +47,10 @@ body {
     background-color: #f7f6f6;
 }
 
-
+.carousel-caption{
+    font-family: 'Pacifico', cursive;
+    font-size: 3em;
+}
 .chat-display {
     min-height: 150px;
     max-height: 40vh;
@@ -101,7 +104,7 @@ legend {
 }
 
 #feedback {
-    width: 50%;
+    width: 70%;
     margin: auto;
     padding: 3em;
     border-radius: 1em;
@@ -219,7 +222,7 @@ legend {
 }
 
 #profile-save {
-    background: #E0396D;
+    background: #e0396d;
 }
 
 .user-row {
@@ -251,4 +254,9 @@ legend {
 
 .table-user-information > tbody > tr > td {
     border-top: 0;
+}
+
+.well {
+    background: #ffd26d;
+    box-shadow: 10px 10px 5px #888888;
 }
