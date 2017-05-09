@@ -33,9 +33,9 @@ export class UserController {
         window.location = "#/";
       })
       .catch(authError => {
-        let $errorElement = $("#login-error");
+        let errorElement = $("#login-error");
         if (authError.status === 422) {
-          Utils.elementPopupAndClearControls($errorElement);
+          Utils.elementPopupAndClearControls(errorElement);
         }
       });
   }
@@ -100,10 +100,11 @@ export class UserController {
     const firstname = $("#new-firstname").val();
     const lastname = $("#new-lastname").val();
     const email = $("#new-email").val();
+    const password = $("#password").val();
     const newPassword = $("#new-password").val();
     const newPasswordConfirmation = $("#new-password-confirm").val();
     const profileImage = $("#profile-photo").attr("src").split(/[\/]/).pop();
-    const passHash = CryptoJS.SHA256($("#password").val()).toString();
+    const passHash = CryptoJS.SHA256(password).toString();
     const newPassHash = CryptoJS.SHA256(newPassword).toString();
 
     Utils.isLoggedIn()
@@ -118,25 +119,25 @@ export class UserController {
       profileImage
     };
 
-    let $errorElement = $("#profile-error");
+    let errorElement = $("#profile-error");
     if (firstname) {
-      if (!Validator.validUsername(firstname)) {
+      if (Validator.validUsername(firstname)) {
         newData.firstname = firstname;
       }
       else {
-        $errorElement.text("Please provide valid First Name.");
-        Utils.elementPopup($errorElement);
+        errorElement.text("Please provide valid First Name.");
+        Utils.elementPopup(errorElement);
         return this;
       }
     }
 
     if (lastname) {
-      if (!Validator.validUsername(lastname)) {
+      if (Validator.validUsername(lastname)) {
         newData.lastname = lastname;
       }
       else {
-        $errorElement.text("Please provide valid Last Name.");
-        Utils.elementPopup($errorElement);
+        errorElement.text("Please provide valid Last Name.");
+        Utils.elementPopup(errorElement);
         return this;
       }
     }
@@ -146,42 +147,59 @@ export class UserController {
         newData.email = email;
       }
       else {
-        $errorElement.text("Please provide valid email.");
-        Utils.elementPopup($errorElement);
+        errorElement.text("Please provide valid email.");
+        Utils.elementPopup(errorElement);
         return this;
       }
     }
 
     if (newPassword) {
-      if (!Validator.validPassword(newPassword)) {
-        if (!Validator.confirmPassword(newPassword, newPasswordConfirmation)) {
+      if (Validator.validPassword(newPassword)) {
+        if (Validator.confirmPassword(newPassword, newPasswordConfirmation)) {
           newData.newPassHash = newPassHash;
         }
         else {
-          $errorElement.text("Passwords do not match.");
-          Utils.elementPopup($errorElement);
+          errorElement.text("Passwords do not match.");
+          Utils.elementPopup(errorElement);
           return this;
         }
       }
       else {
-        $errorElement.text("Password should be at least 6 characters.");
-        Utils.elementPopup($errorElement);
+        errorElement.text("Password should be at least 6 characters.");
+        Utils.elementPopup(errorElement);
         return this;
       }
     }
 
+    if (!password) {
+      errorElement.text("Enter password to save changes.");
+      Utils.elementPopup(errorElement);
+      return this;
+    }
+
     return Data.dataSaveProfile(newData)
       .then(profileResponse => {
-        let $successElement = $("#save-success");
+        localStorage.setItem(STORAGE_PHOTO_KEY, newData.profileImage);
+        let successElement = $("#save-success");
         $("#password").val("");
         $("#new-password").val("");
         $("#new-password-confirm").val("");
-        Utils.elementPopup($successElement);
+        $("#profile-link > img").remove();
+        $("#profile-link").prepend(
+          $.cloudinary.image(newData.profileImage, {
+            radius: "max",
+            height: 38,
+            width: 38,
+            crop: "scale"
+          })
+            .addClass("avatar img-circle img-thumbnail")
+        );
+        Utils.elementPopup(successElement);
       })
       .catch(profileError => {
         if (profileError.status === 422) {
-          $errorElement.text(profileError.responseText);
-          Utils.elementPopup($errorElement);
+          errorElement.text(profileError.responseText);
+          Utils.elementPopup(errorElement);
         }
       });
   }
