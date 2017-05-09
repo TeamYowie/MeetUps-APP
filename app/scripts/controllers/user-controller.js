@@ -185,6 +185,7 @@ export class UserController {
         $("#new-password").val("");
         $("#new-password-confirm").val("");
         $("#profile-link > img").remove();
+        
         $("#profile-link").prepend(
           $.cloudinary.image(newData.profileImage, {
             radius: "max",
