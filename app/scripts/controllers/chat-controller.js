@@ -21,7 +21,7 @@ export class ChatController {
         $("#chat-submit").on("click", () => {
           ChatController.sendMessage(socket);
         });
-        $("#chat-form").on("keydown", (ev) => {
+        $("#chat-form").on("keyup", (ev) => {
           if (ev.which !== 13) {
             return this;
           }
