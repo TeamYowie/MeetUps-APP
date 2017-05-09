@@ -12,7 +12,7 @@ router
   .on("/profile", UserController.loadProfile)
   .resolve();
 
-$(document).ready(() => {
+$(() => {
   UserController.loadLogin();
 });
 

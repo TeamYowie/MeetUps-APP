@@ -119,23 +119,26 @@ export class UserController {
     };
 
     let $errorElement = $("#profile-error");
+    if (firstname) {
+      if (!Validator.validUsername(firstname)) {
+        newData.firstname = firstname;
+      }
+      else {
+        $errorElement.text("Please provide valid First Name.");
+        Utils.elementPopup($errorElement);
+        return this;
+      }
+    }
 
-    if (!Validator.validUsername(firstname)) {
-      newData.firstname = firstname;
-    }
-    else {
-      $errorElement.text("Please provide valid First Name.");
-      Utils.elementPopup($errorElement);
-      return this;
-    }
-
-    if (!Validator.validUsername(lastname)) {
-      newData.lastname = lastname;
-    }
-    else {
-      $errorElement.text("Please provide valid Last Name.");
-      Utils.elementPopup($errorElement);
-      return this;
+    if (lastname) {
+      if (!Validator.validUsername(lastname)) {
+        newData.lastname = lastname;
+      }
+      else {
+        $errorElement.text("Please provide valid Last Name.");
+        Utils.elementPopup($errorElement);
+        return this;
+      }
     }
 
     if (email) {
