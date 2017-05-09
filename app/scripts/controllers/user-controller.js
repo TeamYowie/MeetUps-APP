@@ -121,7 +121,7 @@ export class UserController {
 
     let errorElement = $("#profile-error");
     if (firstname) {
-      if (Validator.validUsername(firstname)) {
+      if (!Validator.validUsername(firstname)) {
         newData.firstname = firstname;
       }
       else {
@@ -132,7 +132,7 @@ export class UserController {
     }
 
     if (lastname) {
-      if (Validator.validUsername(lastname)) {
+      if (!Validator.validUsername(lastname)) {
         newData.lastname = lastname;
       }
       else {
@@ -154,8 +154,8 @@ export class UserController {
     }
 
     if (newPassword) {
-      if (Validator.validPassword(newPassword)) {
-        if (Validator.confirmPassword(newPassword, newPasswordConfirmation)) {
+      if (!Validator.validPassword(newPassword)) {
+        if (!Validator.confirmPassword(newPassword, newPasswordConfirmation)) {
           newData.newPassHash = newPassHash;
         }
         else {
@@ -227,6 +227,7 @@ export class UserController {
         $("#login-error").toggleClass("hidden");
         $("#login-button").on("click", UserController.login);
         $("#signup-button").on("click", () => {
+          UserController.loadSignup();
           window.location = "#/signup";
         });
         localStorage.clear();
