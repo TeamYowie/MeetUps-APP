@@ -37,4 +37,4 @@ https://github.com/TelerikAcademy/JavaScript-Applications/blob/master/Teamwork/R
 
 **Tools**
 * Git (GitHub)
-* Cloudinary Image Services
+* [Cloudinary Image Services](http://res.cloudinary.com/teamyowie/image/upload/v1494429145/cloudinary_toi7nn.png)
